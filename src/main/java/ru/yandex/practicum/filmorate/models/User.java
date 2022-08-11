@@ -4,19 +4,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class User {
-    private  int id;
+    private int id;
     private String email;
     private String login;
     private String name;
     private LocalDate birthday;
-
-    public User(int id, String email, String login, String name, LocalDate birthday) {
-        this.id = id;
-        this.email = email;
-        this.login = login;
-        this.name = name;
-        this.birthday = birthday;
-    }
 
     public User(String login, String name, String email, LocalDate birthday) {
         this.email = email;
@@ -24,15 +16,16 @@ public class User {
         this.name = name;
         this.birthday = birthday;
     }
-    public User(){
+
+    public User() {
 
     }
 
-    public User(String email, String login, LocalDate birthday) {
-        this.email = email;
-        this.login = login;
-        this.birthday = birthday;
-    }
+//    public User(String email, String login, LocalDate birthday) {
+//        this.email = email;
+//        this.login = login;
+//        this.birthday = birthday;
+//    }
 
     public int getId() {
         return id;
@@ -73,6 +66,7 @@ public class User {
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -96,4 +90,5 @@ public class User {
                 ", birthday=" + birthday +
                 '}';
     }
+
 }

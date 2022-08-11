@@ -3,7 +3,8 @@ package ru.yandex.practicum.filmorate.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NoSearchEntityException;
 import ru.yandex.practicum.filmorate.models.Film;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.util.Map;
 
 @RestController
 public class FilmController {
-    Logger log = LoggerFactory.getLogger(FilmController.class);
+    private static final Logger log = LoggerFactory.getLogger(FilmController.class);
     Map<Integer, Film> films = new HashMap<>();
     private int filmId;
 
@@ -25,43 +26,47 @@ public class FilmController {
 
     @PostMapping(value = "/films")
     public Film createFilm(@RequestBody Film film) {
-        if (validateFilm(film)) {
-            film.setId(generateId());
-            films.put(film.getId(), film);
-            log.debug("Фильм " + film.getName() + " успешно добавлен");
-            return film;
-        } else {
-            throw new ValidationException("Ошибка валидации при попытке добавить фильм");
+        if (filmNotValid(film)) {
+            throw new BadRequestException("Ошибка валидации при попытке добавить фильм");
         }
+        film.setId(generateId());
+        films.put(film.getId(), film);
+        log.debug("Фильм " + film.getName() + " успешно добавлен");
+        return film;
     }
 
     @PutMapping(value = "/films")
     public Film updateFilm(@RequestBody Film film) {
-        if (validateFilm(film) && films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
-            log.debug("Фильм обновлен");
-            return film;
-        } else {
-            throw new ValidationException("Ошибка при попытке обновить фильм");
+        if (filmNotValid(film)) {
+            throw new BadRequestException("Ошибка при попытке обновить фильм");
         }
+        if (!films.containsKey(film.getId())) {
+            throw new NoSearchEntityException("Сущность не найдена");
+        }
+        films.put(film.getId(), film);
+        log.debug("Фильм обновлен");
+        return film;
     }
 
-    public boolean validateFilm(Film film) {
-//
+    public boolean filmNotValid(Film film) {
         if (film.getName().isEmpty()) {
-            throw new ValidationException("У фильма должно быть название");
+            log.debug("У фильма должно быть название");
+            return true;
         } else if (film.getDescription().length() > 200) {
-            throw new ValidationException("Слишком длинное описание фильма");
+            log.debug("Слишком длинное описание фильма");
+            return true;
         } else if (!film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28))) {
-            throw new ValidationException("В то время вряд ли могли выпустить фльм:(");
+            log.debug("В то время вряд ли могли выпустить фльм:(");
+            return true;
         } else if (film.getDuration() < 0) {
-            throw new ValidationException("Длительность фильма не может быть отрицательной");
+            log.debug("Длительность фильма не может быть отрицательной");
+            return true;
         }
-        return true;
+        return false;
     }
 
     private int generateId() {
-        this.filmId++;
-        return this.filmId;
+        return ++this.filmId;
     }
+
 }

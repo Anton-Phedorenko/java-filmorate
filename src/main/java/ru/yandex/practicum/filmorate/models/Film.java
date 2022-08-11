@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.models;
 
+
 import java.time.LocalDate;
 import java.util.Objects;
+
 public class Film {
     private int id;
     private String name;
@@ -9,16 +11,6 @@ public class Film {
     private LocalDate releaseDate;
     private int duration;
 
-    public Film(int id, String name, String description, LocalDate releaseDate, int duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-    public Film(){
-
-    }
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
@@ -66,6 +58,7 @@ public class Film {
     public void setDuration(int duration) {
         this.duration = duration;
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -81,12 +74,7 @@ public class Film {
 
     @Override
     public String toString() {
-        return "Film{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", releaseDate=" + releaseDate +
-                ", duration=" + duration +
-                '}';
+        return "Film{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description + '\'' + ", releaseDate=" + releaseDate + ", duration=" + duration + '}';
     }
+
 }
