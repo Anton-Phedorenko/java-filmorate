@@ -1,14 +1,22 @@
-package ru.yandex.practicum.filmorate.models;
+package ru.yandex.practicum.filmorate.model;
 
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class Film {
     private int id;
+    @NotEmpty(message = "Название фильма не должно быть пустым")
+    @NotNull(message = "У фильма должно быть название")
     private String name;
+    @Size(max = 200,message = "Максимальная длина описания не доложна превышать 200 символов")
     private String description;
     private LocalDate releaseDate;
+    @Min(value = 1,message = "Продолжительность фильма должна быть положительной")
     private int duration;
 
 

@@ -1,11 +1,18 @@
-package ru.yandex.practicum.filmorate.models;
+package ru.yandex.practicum.filmorate.model;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class User {
     private int id;
+    @NotEmpty(message = "Электронная почта не может быть пустой")
+    @Email(message = "Неверный формат электронной почты")
     private String email;
+    @NotEmpty(message = "Логин не может быть пустым")
+    @NotBlank(message = "Логин не должен содержать пробелы")
     private String login;
     private String name;
     private LocalDate birthday;
