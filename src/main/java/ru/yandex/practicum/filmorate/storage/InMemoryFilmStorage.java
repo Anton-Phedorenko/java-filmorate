@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -16,10 +16,10 @@ import java.util.List;
 public class InMemoryFilmStorage implements FilmStorage {
     private Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     private HashMap<Long, Film> films = new HashMap<>();
-    private Long filmId= Long.valueOf(0);
+    private Long filmId = Long.valueOf(0);
 
     @Override
-    public Film createFilm(Film film) {
+    public Film create(Film film) {
         if (filmNotValid(film)) {
             throw new BadRequestException("Ошибка валидации при попытке добавить фильм");
         }
@@ -30,25 +30,28 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film updateFilm(Film film) {
+    public Film update(Film film) {
         if (filmNotValid(film)) {
             throw new BadRequestException("Ошибка при попытке обновить фильм");
         }
         if (!films.containsKey(film.getId())) {
-            throw new FilmNotFoundException("Сущность не найдена");
+            throw new NotFoundException("Сущность не найдена");
         }
         films.put(film.getId(), film);
         log.debug("Фильм обновлен");
         return film;
     }
 
-    public Film getFilmById(int id) {
+    @Override
+    public void delete(Long id) {
         if (!films.containsKey(id)) {
-            throw new FilmNotFoundException("Фильм с id " + id + " не найден");
+            throw new NotFoundException("Фильм не найден");
         }
-        return films.get(id);
+        films.remove(id);
+        log.debug("Фильм удален");
     }
 
+    @Override
     public List<Film> findAll() {
         return new ArrayList<>(films.values());
     }
@@ -67,14 +70,14 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     }
 
+    @Override
     public Film getFilmById(Long id) {
         if (films.containsKey(id)) {
             log.debug("Фильм с id " + id + " не найден");
             return films.get(id);
+        } else {
+            throw new NotFoundException("Фильм не найден");
         }
-        else {
-        throw new FilmNotFoundException("Фильм не найден");
-    }
 
     }
 

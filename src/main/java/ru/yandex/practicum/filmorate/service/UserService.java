@@ -17,17 +17,21 @@ public class UserService {
     public UserService(InMemoryUserStorage userStorage) {
         this.userStorage = userStorage;
     }
-    public User createUser(User user){
-       return userStorage.createUser(user);
+
+    public User createUser(User user) {
+        return userStorage.create(user);
     }
-    public User updateUser(User user){
-        return userStorage.updateUser(user);
+
+    public User updateUser(User user) {
+        return userStorage.update(user);
     }
-    public List<User>findAllUsers(){
+
+    public List<User> findAllUsers() {
         return userStorage.findAll();
     }
-    public User getUserById(Long id){
-       return userStorage.getUserById(id);
+
+    public User getUserById(Long id) {
+        return userStorage.getUserById(id);
     }
 
     public boolean addFriend(Long userId, Long friendId) {
@@ -52,14 +56,18 @@ public class UserService {
         return false;
     }
 
+    public void delete(Long id) {
+        userStorage.delete(id);
+    }
+
     public List<User> getFriends(Long id) {
         User user = userStorage.getUserById(id);
         return user.getFriends().stream().map(userStorage::getUserById).collect(Collectors.toList());
     }
 
     public List<User> getMutualFriends(Long id, Long otherId) {
-        User user=userStorage.getUserById(id);
-        User friend=userStorage.getUserById(otherId);
+        User user = userStorage.getUserById(id);
+        User friend = userStorage.getUserById(otherId);
         return user.getFriends().stream().filter(friend.getFriends()::contains).map(userStorage::getUserById).
                 collect(Collectors.toList());
     }

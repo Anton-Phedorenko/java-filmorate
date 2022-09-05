@@ -13,12 +13,12 @@ public class Film {
     @NotEmpty(message = "Название фильма не должно быть пустым")
     @NotNull(message = "У фильма должно быть название")
     private String name;
-    @Size(max = 200,message = "Максимальная длина описания не доложна превышать 200 символов")
+    @Size(max = 200, message = "Максимальная длина описания не доложна превышать 200 символов")
     private String description;
     private LocalDate releaseDate;
-    @Min(value = 1,message = "Продолжительность фильма должна быть положительной")
+    @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     private int duration;
-    private Set<Long> likes=new TreeSet<>();
+    private Set<Long> likes = new TreeSet<>();
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;

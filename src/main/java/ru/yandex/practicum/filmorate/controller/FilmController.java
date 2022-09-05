@@ -9,31 +9,30 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 public class FilmController {
     private final Logger log = LoggerFactory.getLogger(FilmController.class);
-    private FilmService filmService;
+    private final FilmService filmService;
+
     @Autowired
-    public FilmController(FilmService filmService){
-        this.filmService=filmService;
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
     }
+
     @PostMapping
     public Film createFilm(@RequestBody @Valid Film film) {
-            log.info("Добавление фильма");
-            return filmService.createFilm(film);
-        }
+        log.info("Добавление фильма");
+        return filmService.createFilm(film);
+    }
 
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) {
-                log.info("Обновление данных о фильме");
-                return filmService.updateFilm(film);
-            }
+        log.info("Обновление данных о фильме");
+        return filmService.updateFilm(film);
+    }
 
 
     @GetMapping
@@ -51,15 +50,15 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void addLikeToFilm(@PathVariable("userId") Long userId,
                               @PathVariable("id") Long filmId) {
-            log.info("Пользователь с id = " + userId + " поставил лайк фильму с id = " + filmId);
-            filmService.addLikeToFilm(userId, filmId);
+        log.info("Пользователь с id = " + userId + " поставил лайк фильму с id = " + filmId);
+        filmService.addLikeToFilm(userId, filmId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public void deleteLikeToFilm(@PathVariable("userId") Long userId,
                                  @PathVariable("id") Long filmId) {
-            log.info("Пользователь с id = " + userId + " убрал лайк с фильма с id = " + filmId);
-            filmService.deleteLike(userId, filmId);
+        log.info("Пользователь с id = " + userId + " убрал лайк с фильма с id = " + filmId);
+        filmService.deleteLike(userId, filmId);
     }
 
     @GetMapping("/popular")
@@ -67,4 +66,11 @@ public class FilmController {
         log.info("Топ " + count + " лучших фильмов");
         return filmService.mostPopularFilms(count);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        log.info("Удаление фильма по id");
+        filmService.delete(id);
+    }
+
 }
