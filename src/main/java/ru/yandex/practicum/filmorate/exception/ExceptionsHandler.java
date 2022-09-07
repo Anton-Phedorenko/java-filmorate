@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionsHandler {
     @ExceptionHandler
-    public ResponseEntity<String> userNotFoundHandler(NotFoundException e) {
+    public ResponseEntity<String> NotFoundHandler(NotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 

@@ -35,45 +35,45 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        log.info("Обновление пользователя");
+        log.info("Обновление пользователя {}", user.getName());
         return userService.updateUser(user);
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable Long id) {
-        log.info("Получение пользователя по id");
+        log.info("Получение пользователя с id {}", id);
         return userService.getUserById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable("id") Long userId,
                           @PathVariable("friendId") Long friendId) {
-        log.info("Добавление в друзья");
+        log.info("Пользователь с id {} добавляет в друзья пользователя с id {}", userId, friendId);
         userService.addFriend(userId, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        log.info("Удаление из друзей");
+        log.info("Пользователь с id {} удаляет из друзей пользователя с id {}", id, friendId);
         userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
     public List<User> getFriends(@PathVariable("id") Long userId) {
-        log.info("Полученние списка друзей");
+        log.info("Полученние списка друзей пользователя с id {}", userId);
         return userService.getFriends(userId);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getCommonFriends(@PathVariable("id") Long userId,
                                        @PathVariable("otherId") Long friendId) {
-        log.info("Получение списка общих друзей");
+        log.info("Получение списка общих друзей пользователя с id {} и пользователя с id {}", userId, friendId);
         return userService.getMutualFriends(userId, friendId);
     }
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        log.info("Удаление пользователя по id");
+        log.info("Удаление пользователя с id {}", id);
         userService.delete(id);
     }
 

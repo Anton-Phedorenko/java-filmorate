@@ -15,7 +15,7 @@ import java.util.List;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private Long userId = Long.valueOf(0);
-    private Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
+    private final Logger log = LoggerFactory.getLogger(InMemoryUserStorage.class);
     private HashMap<Long, User> users = new HashMap<>();
 
 
@@ -29,7 +29,7 @@ public class InMemoryUserStorage implements UserStorage {
         }
         user.setId(generateId());
         users.put(user.getId(), user);
-        log.debug("Пользователь успешно создан");
+        log.debug("Пользователь с id {} успешно создан",user.getId());
         return user;
     }
 
@@ -42,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new NotFoundException("Сущность не найдена");
         }
         users.put(user.getId(), user);
-        log.debug("Пользователь успешно обновлен");
+        log.debug("Пользователь с id {} успешно обновлен",user.getId());
         return user;
     }
 
@@ -62,7 +62,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User getUserById(Long id) {
         if (!users.containsKey(id)) {
-            log.debug("Пользователь с id " + id + " не найден");
+            log.debug("Пользователь с id {} не найден",id);
             throw new NotFoundException("Пользователь не найден");
         }
         return users.get(id);

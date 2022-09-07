@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     private InMemoryFilmStorage filmStorage;
-
     @Autowired
     public FilmService(InMemoryFilmStorage filmStorage) {
         this.filmStorage = filmStorage;
@@ -47,11 +46,15 @@ public class FilmService {
 
     public List<Film> mostPopularFilms(Integer count) {
         if (count == null) {
-            return filmStorage.findAll().stream().sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size()).limit(10).
-                    collect(Collectors.toList());
+            return filmStorage.findAll().stream()
+                    .sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size())
+                    .limit(10)
+                    .collect(Collectors.toList());
         }
-        return filmStorage.findAll().stream().sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size()).limit(count).
-                collect(Collectors.toList());
+        return filmStorage.findAll().stream()
+                .sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size())
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
 }

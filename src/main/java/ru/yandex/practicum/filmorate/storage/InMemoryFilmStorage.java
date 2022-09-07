@@ -14,7 +14,7 @@ import java.util.List;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
+    private final Logger log = LoggerFactory.getLogger(InMemoryFilmStorage.class);
     private HashMap<Long, Film> films = new HashMap<>();
     private Long filmId = Long.valueOf(0);
 
@@ -25,7 +25,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
         film.setId(generateId());
         films.put(film.getId(), film);
-        log.debug("Фильм " + film.getName() + " успешно добавлен");
+        log.debug("Фильм {} успешно добавлен", film.getName());
         return film;
     }
 
@@ -38,7 +38,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Сущность не найдена");
         }
         films.put(film.getId(), film);
-        log.debug("Фильм обновлен");
+        log.debug("Фильм {} обновлен", film.getName());
         return film;
     }
 
@@ -48,7 +48,7 @@ public class InMemoryFilmStorage implements FilmStorage {
             throw new NotFoundException("Фильм не найден");
         }
         films.remove(id);
-        log.debug("Фильм удален");
+        log.debug("Фильм c id {} удален", id);
     }
 
     @Override
@@ -73,9 +73,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmById(Long id) {
         if (films.containsKey(id)) {
-            log.debug("Фильм с id " + id + " не найден");
             return films.get(id);
         } else {
+            log.debug("Фильм с id {} не найден", id);
             throw new NotFoundException("Фильм не найден");
         }
 

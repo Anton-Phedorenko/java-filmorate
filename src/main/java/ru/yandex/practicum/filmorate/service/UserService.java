@@ -62,14 +62,18 @@ public class UserService {
 
     public List<User> getFriends(Long id) {
         User user = userStorage.getUserById(id);
-        return user.getFriends().stream().map(userStorage::getUserById).collect(Collectors.toList());
+        return user.getFriends().stream()
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
     public List<User> getMutualFriends(Long id, Long otherId) {
         User user = userStorage.getUserById(id);
         User friend = userStorage.getUserById(otherId);
-        return user.getFriends().stream().filter(friend.getFriends()::contains).map(userStorage::getUserById).
-                collect(Collectors.toList());
+        return user.getFriends().stream()
+                .filter(friend.getFriends()::contains)
+                .map(userStorage::getUserById)
+                .collect(Collectors.toList());
     }
 
 }
