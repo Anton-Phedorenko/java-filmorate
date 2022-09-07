@@ -6,19 +6,19 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.*;
 
 public class Film {
-    private int id;
+    private Long id;
     @NotEmpty(message = "Название фильма не должно быть пустым")
     @NotNull(message = "У фильма должно быть название")
     private String name;
-    @Size(max = 200,message = "Максимальная длина описания не доложна превышать 200 символов")
+    @Size(max = 200, message = "Максимальная длина описания не доложна превышать 200 символов")
     private String description;
     private LocalDate releaseDate;
-    @Min(value = 1,message = "Продолжительность фильма должна быть положительной")
+    @Min(value = 1, message = "Продолжительность фильма должна быть положительной")
     private int duration;
-
+    private Set<Long> likes = new TreeSet<>();
 
     public Film(String name, String description, LocalDate releaseDate, int duration) {
         this.name = name;
@@ -27,11 +27,11 @@ public class Film {
         this.duration = duration;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -65,6 +65,14 @@ public class Film {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public Set<Long> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(Set<Long> likes) {
+        this.likes = likes;
     }
 
     @Override
