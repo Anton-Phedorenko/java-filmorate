@@ -105,7 +105,7 @@ public class UserDaoImpl implements UserDao {
                 "select u.USER_ID," +
                         "       u.email," +
                         "       u.login," +
-                        "       u.user_name," +
+                        "       u.name," +
                         "       u.birthday " +
                         "from friends f2 " +
                         "inner join users u on u.user_id = f2.second_user_id " +
@@ -118,7 +118,7 @@ public class UserDaoImpl implements UserDao {
         return jdbcTemplate.query(sql,(rs, rowNum) -> new User(rs.getLong("user_id"),
                 rs.getString("email"),
                 rs.getString("login"),
-                rs.getString("user_name"),
+                rs.getString("name"),
                 rs.getDate("birthday").toLocalDate()), id, otherId);
     }
 
