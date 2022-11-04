@@ -1,79 +1,94 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.impl.UserDaoImpl;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
 
-    private final InMemoryUserStorage userStorage;
+    private final UserDaoImpl userDao;
+    private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserDaoImpl userDao) {
+        this.userDao = userDao;
     }
 
     public User createUser(User user) {
-        return userStorage.create(user);
+        if (userNotValid(user)) {
+            throw new BadRequestException("Ошибка валидации при создании пользователя");
+        }
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            throw new BadRequestException("Пользователь не мог родиться в будущем");
+        }
+        return userDao.create(user);
     }
 
     public User updateUser(User user) {
-        return userStorage.update(user);
+        if (userNotValid(user)) {
+            throw new BadRequestException("Ошибка валидации при обновлении пользователя");
+        }
+        if (user.getId() < 0 || (!userDao.userIds().contains(user.getId()))) {
+            throw new NotFoundException("Пользователь не может быть найден");
+        }
+        return userDao.update(user);
     }
 
     public List<User> findAllUsers() {
-        return userStorage.findAll();
+        return userDao.findAll();
     }
 
     public User getUserById(Long id) {
-        return userStorage.getUserById(id);
+        if (id < 0 || (!userDao.userIds().contains(id))) {
+            throw new NotFoundException("Значение id не может быть отрицательным");
+        }
+        return userDao.getUserById(id);
     }
 
     public boolean addFriend(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        if (user != null && friend != null) {
-            user.getFriends().add(friendId);
-            friend.getFriends().add(userId);
-            return true;
+        if (userId < 0 || friendId < 0) {
+            throw new NotFoundException("Id не может быть отрицательным");
         }
+        userDao.addFriend(userId, friendId);
         return false;
     }
 
     public boolean deleteFriend(Long userId, Long friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
-        if (user != null || friend != null) {
-            user.getFriends().remove(friendId);
-            friend.getFriends().remove(userId);
-            return true;
-        }
-        return false;
+        userDao.deleteFriend(userId, friendId);
+        return true;
     }
 
     public void delete(Long id) {
-        userStorage.delete(id);
+        userDao.delete(id);
     }
 
     public List<User> getFriends(Long id) {
-        User user = userStorage.getUserById(id);
-        return user.getFriends().stream()
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+        return userDao.getFriends(id);
     }
 
     public List<User> getMutualFriends(Long id, Long otherId) {
-        User user = userStorage.getUserById(id);
-        User friend = userStorage.getUserById(otherId);
-        return user.getFriends().stream()
-                .filter(friend.getFriends()::contains)
-                .map(userStorage::getUserById)
-                .collect(Collectors.toList());
+
+        return userDao.getFriendsCommon(id, otherId);
+    }
+
+    private boolean userNotValid(User user) {
+        if (!user.getBirthday().isBefore(LocalDate.now())) {
+            log.debug("Пользователь не мог родиться в будущем ¯\\_(ツ)_/¯ ");
+            return true;
+        }
+        return false;
     }
 
 }

@@ -1,12 +1,12 @@
+
 package ru.yandex.practicum.filmorate.model;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class User {
     private Long id;
@@ -20,8 +20,18 @@ public class User {
     private LocalDate birthday;
     private Set<Long> friends = new HashSet<>();
 
+    public User(){
 
+    }
     public User(String login, String name, String email, LocalDate birthday) {
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+    }
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
         this.email = email;
         this.login = login;
         this.name = name;
@@ -99,5 +109,12 @@ public class User {
                 ", birthday=" + birthday +
                 '}';
     }
-
+    public Map<String,Object> toMap(){
+        Map<String,Object>values=new HashMap<>();
+        values.put("email",email);
+        values.put("name",name);
+        values.put("login",login);
+        values.put("birthday",birthday);
+        return values;
+    }
 }

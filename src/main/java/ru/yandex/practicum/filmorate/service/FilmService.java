@@ -1,60 +1,90 @@
 package ru.yandex.practicum.filmorate.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.impl.FilmDaoImpl;
+import ru.yandex.practicum.filmorate.dao.impl.LikeDaoImpl;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
+import javax.validation.ValidationException;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class FilmService {
-    private InMemoryFilmStorage filmStorage;
+    private final LikeDaoImpl likeDao;
+    private final FilmDaoImpl filmDao;
+    private final Logger log = LoggerFactory.getLogger(FilmService.class);
+
     @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
+    public FilmService(FilmDaoImpl filmDao, LikeDaoImpl likeDao) {
+        this.filmDao = filmDao;
+        this.likeDao = likeDao;
     }
 
     public Film createFilm(Film film) {
-        return filmStorage.create(film);
+        if (filmNotValid(film)) {
+            throw new BadRequestException("Ошибка валидации при создании фильма");
+        }
+        return filmDao.create(film);
     }
 
     public Film updateFilm(Film film) {
-        return filmStorage.update(film);
+        if (filmNotValid(film)) {
+            throw new BadRequestException("Ошибка валидации при создании фильма");
+        }
+        if (film.getId() < 0 || (!filmDao.filmsId().contains(film.getId()))) {
+            throw new NotFoundException("Фильм не может быть найден");
+        }
+        return filmDao.update(film);
     }
 
     public List<Film> findAllFilms() {
-        return filmStorage.findAll();
+        return filmDao.findAll();
     }
 
     public Film getFilmById(Long id) {
-        return filmStorage.getFilmById(id);
+        if (id < 0 || (!filmDao.filmsId().contains(id))) {
+            throw new NotFoundException("Фильм не может быть найден");
+        }
+        return filmDao.getFilmById(id);
     }
 
     public void addLikeToFilm(Long filmId, Long userId) {
-        filmStorage.getFilmById(filmId).getLikes().add(userId);
+        likeDao.addLikeToFilm(filmId, userId);
     }
 
-    public void deleteLike(Long filmId, Long userId) {
-        filmStorage.getFilmById(filmId).getLikes().remove(userId);
+    public void deleteLike(Long userId, Long filmId) {
+        if (filmId < 0 || userId < 0) {
+            throw new NotFoundException("Сущности не могут быть найдены");
+        }
+
+        if (likeDao.getUsersWhichLikeFilm(filmId).contains(userId)) {
+            likeDao.deleteLikeFromFilm(userId, filmId);
+        } else {
+            throw new ValidationException("Пользователь либо уже убрал лайк,либо еще и не лайкал");
+        }
+        filmDao.getFilmById(filmId).getLikes().remove(userId);
     }
 
     public void delete(Long id) {
-        filmStorage.delete(id);
+        filmDao.delete(id);
     }
 
     public List<Film> mostPopularFilms(Integer count) {
-        if (count == null) {
-            return filmStorage.findAll().stream()
-                    .sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size())
-                    .limit(10)
-                    .collect(Collectors.toList());
+        return filmDao.getMostPopular(count);
+    }
+
+    public boolean filmNotValid(Film film) {
+        if (!film.getReleaseDate().isAfter(LocalDate.of(1895, 12, 28))) {
+            log.debug("Дата релиза фильма должна быть не раньше  28 декабря 1985 года");
+            return true;
         }
-        return filmStorage.findAll().stream()
-                .sorted((f1, f2) -> f1.getLikes().size() - f2.getLikes().size())
-                .limit(count)
-                .collect(Collectors.toList());
+        return false;
     }
 
 }
