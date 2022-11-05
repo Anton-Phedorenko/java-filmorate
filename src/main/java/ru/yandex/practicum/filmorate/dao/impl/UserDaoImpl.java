@@ -121,5 +121,5 @@ public class UserDaoImpl implements UserStorage {
                 rs.getString("name"),
                 rs.getDate("birthday").toLocalDate()), id, otherId);
     }
-   
+
 }
