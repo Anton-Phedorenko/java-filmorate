@@ -23,13 +23,6 @@ public class Film {
     @NotNull
     private Mpa mpa;
     private Integer countLikes = 0;
-//
-//    public Film(String name, String description, LocalDate releaseDate, int duration) {
-//        this.name = name;
-//        this.description = description;
-//        this.releaseDate = releaseDate;
-//        this.duration = duration;
-//    }
 
     public Film(String name, String description, LocalDate releaseDate, int duration, Mpa mpa) {
         this.name = name;
