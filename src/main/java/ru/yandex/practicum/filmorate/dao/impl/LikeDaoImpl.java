@@ -16,29 +16,29 @@ public class LikeDaoImpl implements LikeDao {
 
     @Override
     public void addLikeToFilm(Long filmId, Long userId) {
-        jdbcTemplate.update("insert into film_user (film_id,user_id) values (?,?)", filmId, userId);
+        jdbcTemplate.update("INSERT INTO film_user (film_id,user_id) VALUES (?,?)", filmId, userId);
         updateFilmLikes(filmId);
     }
 
     @Override
     public void deleteLikeFromFilm(Long userId, Long filmId) {
-        jdbcTemplate.update("delete from film_user where film_id=? and user_id=?", filmId, userId);
+        jdbcTemplate.update("DELETE FROM film_user WHERE film_id=? AND user_id=?", filmId, userId);
         updateFilmLikes(filmId);
     }
 
     public List<Long> getUsersWhichLikeFilm(Long filmId) {
         String sql =
-                "select fu.USER_ID " +
-                        "from FILM F " +
-                        "join film_user fu  on F.FILM_ID = fu.FILM_ID " +
-                        "where F.FILM_ID = ?";
+                "SELECT fu.USER_ID " +
+                        "FROM FILM F " +
+                        "JOIN film_user fu  ON F.FILM_ID = fu.FILM_ID " +
+                        "WHERE F.FILM_ID = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getLong("user_id"), filmId);
     }
 
     public void updateFilmLikes(Long filmId) {
-        String sql = "update film f set rate=(select count(fu.user_id) from film_user fu where fu.film_id=f.film_id)" +
-                " where film_id=?";
+        String sql = "UPDATE film f SET rate=(SELECT COUNT(fu.user_id) FROM film_user fu WHERE fu.film_id=f.film_id)" +
+                " WHERE film_id=?";
         jdbcTemplate.update(sql, filmId);
     }
 

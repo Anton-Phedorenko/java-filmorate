@@ -5,15 +5,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dao.UserDao;
+import ru.yandex.practicum.filmorate.dao.storage.UserStorage;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
-public class UserDaoImpl implements UserDao {
+public class UserDaoImpl implements UserStorage {
 
-    private static final Logger log = LoggerFactory.getLogger(UserDaoImpl.class);
     private JdbcTemplate jdbcTemplate;
 
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
@@ -35,12 +36,12 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User update(User user) {
-        String sql = "update users set user_id=?," +
+        String sql = "UPDATE users SET user_id=?," +
                 " name = ?," +
                 "login = ?," +
                 "email = ?," +
                 "birthday = ?" +
-                "where user_id = ?";
+                "WHERE user_id = ?";
 
         jdbcTemplate.update(sql, user.getId(), user.getName(), user.getLogin(), user.getEmail(),
                 user.getBirthday(), user.getId());
@@ -49,33 +50,32 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void delete(Long id) {
-        jdbcTemplate.update("delete from users where id = ", id);
+        jdbcTemplate.update("DELETE FROM users WHERE id = ", id);
     }
 
     @Override
     public List<User> findAll() {
-        String sql = "select * from users";
+        String sql = "SELECT * FROM users";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(rs.getLong("user_id"),
                 rs.getString("email"),
                 rs.getString("login"),
                 rs.getString("name"), rs.getDate("birthday").toLocalDate()));
     }
 
-
     @Override
-    public User getUserById(Long id) {
-        String sql = "select * from users where user_id = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> new User(rs.getLong("user_id"), rs.getString("email"),
+    public Optional<User> getById(Long id) {
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        return Optional.ofNullable(jdbcTemplate.query(sql, rs -> rs.next() ? new User(rs.getLong("user_id"), rs.getString("email"),
                 rs.getString("login"),
-                rs.getString("name"), rs.getDate("birthday").toLocalDate()), id);
+                rs.getString("name"), rs.getDate("birthday").toLocalDate()) : null, id));
     }
 
     public boolean addFriend(Long userId, Long friendId) {
-        String sql = "insert into friends (first_user_id,second_user_id,status_id)" +
-                "values(?,?,?)";
-        User user = getUserById(userId);
+        String sql = "INSERT INTO friends (first_user_id,second_user_id,status_id)" +
+                "VALUES(?,?,?)";
+        User user = getById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         user.getFriends().add(friendId);
-        User friend = getUserById(friendId);
+        User friend = getById(friendId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         if (friend.getFriends().contains(userId)) {
             jdbcTemplate.update(sql, userId, friend, 2);
             return true;
@@ -87,7 +87,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     public List<User> getFriends(Long id) {
-        String sql = "select * from users where user_id in(select second_user_id from friends where first_user_id = ?)";
+        String sql = "SELECT * FROM users WHERE user_id IN(SELECT second_user_id FROM friends WHERE first_user_id = ?)";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new User(rs.getLong("user_id"),
                 rs.getString("email"),
                 rs.getString("login"),
@@ -96,34 +96,30 @@ public class UserDaoImpl implements UserDao {
     }
 
     public void deleteFriend(Long userId, Long friendId) {
-        String sql = "delete from friends where first_user_id =? and second_user_id = ?";
-        jdbcTemplate.update(sql,userId, friendId);
+        String sql = "DELETE FROM friends WHERE first_user_id =? AND second_user_id = ?";
+        jdbcTemplate.update(sql, userId, friendId);
     }
 
     public List<User> getFriendsCommon(Long id, Long otherId) {
         String sql =
-                "select u.USER_ID," +
+                "SELECT u.USER_ID," +
                         "       u.email," +
                         "       u.login," +
                         "       u.name," +
                         "       u.birthday " +
-                        "from friends f2 " +
-                        "inner join users u on u.user_id = f2.second_user_id " +
-                        "where f2.first_user_id = ?" +
-                        " and f2.second_user_id in ( " +
-                        "    select f1.second_user_id " +
-                        "    from friends f1 " +
-                        "    where f1.first_user_id = ?)";
+                        "FROM friends f2 " +
+                        "INNER JOIN users u ON u.user_id = f2.second_user_id " +
+                        "WHERE f2.first_user_id = ?" +
+                        " AND f2.second_user_id IN ( " +
+                        "    SELECT f1.second_user_id " +
+                        "    FROM friends f1 " +
+                        "    WHERE f1.first_user_id = ?)";
 
-        return jdbcTemplate.query(sql,(rs, rowNum) -> new User(rs.getLong("user_id"),
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new User(rs.getLong("user_id"),
                 rs.getString("email"),
                 rs.getString("login"),
                 rs.getString("name"),
                 rs.getDate("birthday").toLocalDate()), id, otherId);
-    }
-
-    public List<Long> userIds() {
-        return jdbcTemplate.query("select user_id from users", (rs, rowNum) -> rs.getLong("user_id"));
     }
 
 }

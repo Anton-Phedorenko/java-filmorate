@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
-import ru.yandex.practicum.filmorate.constant.Genres;
-
 import java.util.Objects;
 
 public class Genre {
     private Long id;
-    private Genres name;
+    private String name;
 
-    public Genre(Long id, Genres name) {
+    public Genre(Long id, String name) {
         this.id = id;
         this.name = name;
     }
@@ -24,11 +22,11 @@ public class Genre {
         this.id = id;
     }
 
-    public Genres getName() {
+    public String getName() {
         return name;
     }
 
-    public void setName(Genres name) {
+    public void setName(String name) {
         this.name = name;
     }
 

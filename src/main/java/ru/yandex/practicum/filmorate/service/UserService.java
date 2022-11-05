@@ -40,7 +40,7 @@ public class UserService {
         if (userNotValid(user)) {
             throw new BadRequestException("Ошибка валидации при обновлении пользователя");
         }
-        if (user.getId() < 0 || (!userDao.userIds().contains(user.getId()))) {
+        if (userDao.getById(user.getId()).isEmpty()) {
             throw new NotFoundException("Пользователь не может быть найден");
         }
         return userDao.update(user);
@@ -51,10 +51,8 @@ public class UserService {
     }
 
     public User getUserById(Long id) {
-        if (id < 0 || (!userDao.userIds().contains(id))) {
-            throw new NotFoundException("Значение id не может быть отрицательным");
-        }
-        return userDao.getUserById(id);
+
+        return userDao.getById(id).orElseThrow(() -> new NotFoundException("Пользователь не может быть найден"));
     }
 
     public boolean addFriend(Long userId, Long friendId) {

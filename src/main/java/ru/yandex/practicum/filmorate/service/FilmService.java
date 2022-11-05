@@ -37,7 +37,7 @@ public class FilmService {
         if (filmNotValid(film)) {
             throw new BadRequestException("Ошибка валидации при создании фильма");
         }
-        if (film.getId() < 0 || (!filmDao.filmsId().contains(film.getId()))) {
+        if (filmDao.getById(film.getId()).isEmpty()) {
             throw new NotFoundException("Фильм не может быть найден");
         }
         return filmDao.update(film);
@@ -48,10 +48,7 @@ public class FilmService {
     }
 
     public Film getFilmById(Long id) {
-        if (id < 0 || (!filmDao.filmsId().contains(id))) {
-            throw new NotFoundException("Фильм не может быть найден");
-        }
-        return filmDao.getFilmById(id);
+        return filmDao.getById(id).orElseThrow(()->new NotFoundException("Фильм не может быть найден"));
     }
 
     public void addLikeToFilm(Long filmId, Long userId) {
@@ -62,13 +59,12 @@ public class FilmService {
         if (filmId < 0 || userId < 0) {
             throw new NotFoundException("Сущности не могут быть найдены");
         }
-
         if (likeDao.getUsersWhichLikeFilm(filmId).contains(userId)) {
             likeDao.deleteLikeFromFilm(userId, filmId);
         } else {
             throw new ValidationException("Пользователь либо уже убрал лайк,либо еще и не лайкал");
         }
-        filmDao.getFilmById(filmId).getLikes().remove(userId);
+        filmDao.getById(filmId).get().getLikes().remove(userId);
     }
 
     public void delete(Long id) {
