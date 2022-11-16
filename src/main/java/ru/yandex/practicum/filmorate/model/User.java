@@ -1,13 +1,15 @@
+
 package ru.yandex.practicum.filmorate.model;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.*;
 
 public class User {
-    private int id;
+    private Long id;
     @NotEmpty(message = "Электронная почта не может быть пустой")
     @Email(message = "Неверный формат электронной почты")
     private String email;
@@ -16,7 +18,11 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
+    private Set<Long> friends = new HashSet<>();
 
+    public User(){
+
+    }
     public User(String login, String name, String email, LocalDate birthday) {
         this.email = email;
         this.login = login;
@@ -24,15 +30,19 @@ public class User {
         this.birthday = birthday;
     }
 
-    public User() {
-
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -68,17 +78,25 @@ public class User {
         this.birthday = birthday;
     }
 
+    public Set<Long> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(Set<Long> friends) {
+        this.friends = friends;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday);
+        return Objects.equals(id, user.id) && Objects.equals(email, user.email) && Objects.equals(login, user.login) && Objects.equals(name, user.name) && Objects.equals(birthday, user.birthday) && Objects.equals(friends, user.friends);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, email, login, name, birthday);
+        return Objects.hash(id, email, login, name, birthday, friends);
     }
 
     @Override
@@ -91,5 +109,12 @@ public class User {
                 ", birthday=" + birthday +
                 '}';
     }
-
+    public Map<String,Object> toMap(){
+        Map<String,Object>values=new HashMap<>();
+        values.put("email",email);
+        values.put("name",name);
+        values.put("login",login);
+        values.put("birthday",birthday);
+        return values;
+    }
 }
