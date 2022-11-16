@@ -11,7 +11,7 @@ target/
 .settings
 .springBeans
 .sts4-cache
-db
+/db/
 ### IntelliJ IDEA ###
 .idea
 *.iws
@@ -19,7 +19,7 @@ db
 *.ipr
 <<<<<<< HEAD
 =======
-db
+
 >>>>>>> 745602dd38854d32867b771ef7576dea65d5a736
 ### NetBeans ###
 /nbproject/private/
